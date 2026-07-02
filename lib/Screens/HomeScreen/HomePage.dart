@@ -9,6 +9,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:new_version_plus/new_version_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Controllers/HomeController.dart';
 
@@ -46,7 +47,22 @@ class _HomePageState extends State<HomePage> {
   RxList<MembersDataModel> searchedMembersDataListGenderWise =
       <MembersDataModel>[].obs;
   List<String> educationSelected = [];
+  bool _showUpdateBar = false;
+Future<void> _checkForUpdate() async {
+  final newVersion = NewVersionPlus(
+    androidId: "com.ppm.agsolutions",
+  );
 
+  final status = await newVersion.getVersionStatus();
+
+  if (status == null) return;
+
+  if (status.canUpdate && mounted) {
+    setState(() {
+      _showUpdateBar = true;
+    });
+  }
+}
   Future<void> getAllMembersData() async {
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -150,6 +166,9 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement initState
     getAllMembersData();
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _checkForUpdate();
+  });
   }
 
   @override
